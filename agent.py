@@ -1,5 +1,6 @@
 import sys
-import board 
+import board
+from minimax import Minimax
 
 class ConnectFourAgent(object):
 	"""
@@ -10,13 +11,13 @@ class ConnectFourAgent(object):
 	alpha-beta pruning in order to choose its move. 
 	"""
 	
-	def __init__(self, name="Computer", color=None, algorithm="naive"):
+	def __init__(self, name="Computer", color=None, algorithm="minimax"):
 		self.name = name
 		self.color = color
 		self.opponentColor = "R" if color == "B" else "B"
 		self.algorithm = algorithm
 		self.isHuman = False
-
+		self.minimaxSolver = Minimax()
 
 	def setColor(self, color):
 		self.color = color 
@@ -45,12 +46,9 @@ class ConnectFourAgent(object):
 			if board.isLegalMove(move): return move
 
 		for i in range(self.board.width):
-			if board.isLegalMove(i): return i 
-
+			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
-		pass
-
-
+		return self.minimaxSolver.bestMove(2, board.getState2dArray(), self.color) #3 is minimax depth
 	def alphaBetaMove(self, board):
 		pass 

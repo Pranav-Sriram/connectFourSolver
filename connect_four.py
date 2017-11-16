@@ -14,7 +14,6 @@ class ConnectFourGame(object):
 		self.secondPlayer.setColor("B")
 		self.gameOver = False
 
-
 	def playMove(self, player):
 		move = player.getMove(self.board)
 		valid = self.board.addPiece(move, player.color)
@@ -23,7 +22,6 @@ class ConnectFourGame(object):
 			self.playMove(player)
 		self.board.display()
 		self.checkIfGameEnded()
-
 
 	def checkIfGameEnded(self):
 		winner = self.board.containsFourInARow()
@@ -40,15 +38,13 @@ class ConnectFourGame(object):
 			print("Game over. It's a Draw! ")
 			exit(0)
 
-
 	def play(self):
 		while True:
 			self.playMove(self.firstPlayer)
 			self.playMove(self.secondPlayer)
 
-
 if __name__=="__main__":
 	firstPlayer = HumanPlayer(name="Human")
-	secondPlayer = ConnectFourAgent(name="Computer")
+	secondPlayer = ConnectFourAgent(name="Computer", color="B")
 	game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
 	game.play()
