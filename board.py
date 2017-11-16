@@ -90,3 +90,16 @@ class ConnectFourBoard(object):
 
 	def getNumMoves(self):
 		return len(self.moves)
+
+
+	def getState2dArray(self):
+		state = []
+		for i in range(0, self.height):   # Iterate over rows from top to bottom
+			row = []
+			for j, column in enumerate(self.columns):
+				row.append(column[i])
+			state.append(row)
+		return state
+
+
+
