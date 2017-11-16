@@ -55,7 +55,6 @@ class Minimax(object):
             if alpha >= best_alpha:
                 best_alpha = alpha
                 best_move = move
-        print "Computer's reward for the move: " + str(best_alpha)
         return best_move
 
     def search(self, depth, state, curr_player):
