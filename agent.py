@@ -11,12 +11,13 @@ class ConnectFourAgent(object):
 	alpha-beta pruning in order to choose its move. 
 	"""
 	
-	def __init__(self, name="Computer", color=None, algorithm="minimax"):
+	def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax"):
 		self.name = name
 		self.color = color
 		self.opponentColor = "R" if color == "B" else "B"
 		self.algorithm = algorithm
 		self.isHuman = False
+		self.minimax_depth = depth
 		self.minimaxSolver = Minimax()
 
 	def setColor(self, color):
@@ -28,7 +29,7 @@ class ConnectFourAgent(object):
 			return self.naiveMove(board)
 		elif self.algorithm == "minimax":
 			return self.minimaxMove(board)
-		elif self.algorithm == "alphaBetaMove":
+		elif self.algorithm == "alphabeta":
 			return self.alphaBetaMove(board)
 		else:
 			raise NameError("Unrecognized algorithm name. ")
@@ -49,19 +50,10 @@ class ConnectFourAgent(object):
 			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
-		return self.minimaxSolver.bestMove(2, board.getState2dArray(), self.color) #3 is minimax depth
+		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color)
+
 	def alphaBetaMove(self, board):
-		pass 
+		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
 
 	def getAction(self, board):
 		pass 
-
-    # Action is just a column number
-    def evaluationFunction1(self, board, action):
-        # check for number of 3-in-a-row's?
-        my_threats = count_threats(board, self.color)
-        opp_threats = count_threats(board, self.opponentColor)
-        # for each of my threats, see if this action would allow me to win
-        # for each of opp's threats, see if this action would allow him to win
-        for row in board.width:
-            for col in board.height:

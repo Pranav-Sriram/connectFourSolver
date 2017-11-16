@@ -45,6 +45,6 @@ class ConnectFourGame(object):
 
 if __name__=="__main__":
 	firstPlayer = HumanPlayer(name="Human")
-	secondPlayer = ConnectFourAgent(name="Computer", color="B")
+	secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="alphabeta")
 	game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
 	game.play()

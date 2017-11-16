@@ -13,6 +13,9 @@ import board
 
 import random, sys
 
+neg_inf = float('-inf')
+inf = float('inf')
+
 class Minimax(object):
     """ Minimax object that takes a current connect four board state
     """
@@ -22,7 +25,7 @@ class Minimax(object):
         # copy the board to self.board
         pass
 
-    def bestMove(self, depth, state, curr_player):
+    def bestMove(self, depth, state, curr_player, alpha_beta=False):
         """ Returns the best move (as a column number) and the associated alpha
             Calls search()
         """
@@ -40,8 +43,11 @@ class Minimax(object):
             if self.isLegalMove(col, state):
                 # make the move in column 'col' for curr_player
                 temp = self.makeMove(state, col, curr_player)
-                legal_moves[col] = -self.search(depth-1, temp, opp_player)
-        best_alpha = float('-inf')
+                if alpha_beta:
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+                else:
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+        best_alpha = neg_inf
         best_move = None
         moves = list(legal_moves.items())
         random.shuffle(moves)
@@ -85,6 +91,46 @@ class Minimax(object):
             if child == None:
                 print("child == None (search)")
             alpha = max(alpha, -self.search(depth-1, child, opp_player))
+        return alpha
+
+    # Search with alpha-beta pruning
+    def search_alpha_beta(self, depth, state, curr_player, a, b):
+        """ Searches the tree at depth 'depth'
+            By default, the state is the board, and curr_player is whomever
+            called this search
+
+            Returns the alpha value
+        """
+
+        # enumerate all legal moves from this state
+        legal_moves = []
+        for i in range(7):
+            # if column i is a legal move...
+            if self.isLegalMove(i, state):
+                # make the move in column i for curr_player
+                temp = self.makeMove(state, i, curr_player)
+                legal_moves.append(temp)
+
+        # if this node (state) is a terminal node or depth == 0...
+        if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
+            # return the heuristic value of node
+            return self.value(state, curr_player)
+
+        # determine opponent's color
+        if curr_player == 'R':
+            opp_player = 'B'
+        else:
+            opp_player = 'R'
+
+        alpha = float('-inf')
+        for child in legal_moves:
+            if child == None:
+                print("child == None (search)")
+            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b)
+            alpha = max(alpha, child)
+            a = max(a, alpha)
+            if b <= a:
+                return child
         return alpha
 
     def isLegalMove(self, column, state):
