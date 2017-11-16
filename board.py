@@ -78,6 +78,8 @@ class ConnectFourBoard(object):
 
 
 	def getPrevMove(self):
+		if len(self.moves) == 0:
+			return 3
 		return self.moves[len(self.moves)-1]
 
 

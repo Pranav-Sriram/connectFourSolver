@@ -11,7 +11,7 @@ class ConnectFourAgent(object):
 	alpha-beta pruning in order to choose its move. 
 	"""
 	
-	def __init__(self, name="Computer", color=None, algorithm="minimax"):
+	def __init__(self, name="Computer", color=None, algorithm="naive"):
 		self.name = name
 		self.color = color
 		self.opponentColor = "R" if color == "B" else "B"
@@ -34,7 +34,7 @@ class ConnectFourAgent(object):
 			raise NameError("Unrecognized algorithm name. ")
 		
 
-	def naiveMove(self, board): 
+	def naiveMove(self, board):
 		prevHumanMove = board.getPrevMove()
 		moveNumber = board.getNumMoves()
 		if moveNumber % 4 < 2:
@@ -49,6 +49,6 @@ class ConnectFourAgent(object):
 			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
-		return self.minimaxSolver.bestMove(2, board.getState2dArray(), self.color) #3 is minimax depth
+		return self.minimaxSolver.bestMove(4, board.getState2dArray(), self.color) #4 is minimax depth
 	def alphaBetaMove(self, board):
 		pass 
