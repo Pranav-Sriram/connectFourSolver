@@ -54,3 +54,16 @@ class ConnectFourAgent(object):
 
 	def alphaBetaMove(self, board):
 		pass 
+
+	def getAction(self, board):
+		pass 
+
+    # Action is just a column number
+    def evaluationFunction1(self, board, action):
+        # check for number of 3-in-a-row's?
+        my_threats = count_threats(board, self.color)
+        opp_threats = count_threats(board, self.opponentColor)
+        # for each of my threats, see if this action would allow me to win
+        # for each of opp's threats, see if this action would allow him to win
+        for row in board.width:
+            for col in board.height:
