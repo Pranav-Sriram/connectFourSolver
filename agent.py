@@ -10,12 +10,8 @@ class ConnectFourAgent(object):
 	The ConnectFourAgent uses the ConnectFourBoard to perform algorithms such as minimax and 
 	alpha-beta pruning in order to choose its move. 
 	"""
-	
-<<<<<<< HEAD
-	def __init__(self, name="Computer", color=None, algorithm="naive"):
-=======
+
 	def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax"):
->>>>>>> b42ebaad13a1078d66037c19da05f4e5b143a0f0
 		self.name = name
 		self.color = color
 		self.opponentColor = "R" if color == "B" else "B"
@@ -54,12 +50,8 @@ class ConnectFourAgent(object):
 			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
-<<<<<<< HEAD
-		return self.minimaxSolver.bestMove(4, board.getState2dArray(), self.color) #4 is minimax depth
-=======
 		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color)
 
->>>>>>> b42ebaad13a1078d66037c19da05f4e5b143a0f0
 	def alphaBetaMove(self, board):
 		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
 
