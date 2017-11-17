@@ -25,10 +25,11 @@ class Minimax(object):
         # copy the board to self.board
         pass
 
-    def bestMove(self, depth, state, curr_player, alpha_beta=False):
+    def bestMove(self, depth, board, curr_player, alpha_beta=False):
         """ Returns the best move (as a column number) and the associated alpha
             Calls search()
         """
+        state = board.getState2dArray()
 
         # determine opponent's color
         if curr_player == 'R':
@@ -59,7 +60,7 @@ class Minimax(object):
 
     def search(self, depth, state, curr_player):
         """ Searches the tree at depth 'depth'
-            By default, the state is the board, and curr_player is whomever
+            By default, the state is the board 2d array, and curr_player is whomever
             called this search
 
             Returns the alpha value
