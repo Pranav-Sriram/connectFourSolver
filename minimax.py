@@ -32,10 +32,7 @@ class Minimax(object):
         state = board.getState2dArray()
 
         # determine opponent's color
-        if curr_player == 'R':
-            opp_player = 'B'
-        else:
-            opp_player = 'R'
+        opp_player = "B" if curr_player == "R" else "R"
 
         # enumerate all legal moves
         legal_moves = {} # will map legal move states to their alpha values
@@ -81,10 +78,7 @@ class Minimax(object):
             return self.value(state, curr_player)
 
         # determine opponent's color
-        if curr_player == 'R':
-            opp_player = 'B'
-        else:
-            opp_player = 'R'
+        opp_player = "B" if curr_player == "R" else "R"
 
         alpha = float('-inf')
         for child in legal_moves:
@@ -117,10 +111,7 @@ class Minimax(object):
             return self.value(state, curr_player)
 
         # determine opponent's color
-        if curr_player == 'R':
-            opp_player = 'B'
-        else:
-            opp_player = 'R'
+        opp_player = "B" if curr_player == "R" else "B"
 
         alpha = float('-inf')
         for child in legal_moves:
