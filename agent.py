@@ -23,7 +23,6 @@ class ConnectFourAgent(object):
 	def setColor(self, color):
 		self.color = color 
 
-
 	def getMove(self, board=None):
 		if self.algorithm == "naive":
 			return self.naiveMove(board)
@@ -34,7 +33,6 @@ class ConnectFourAgent(object):
 		else:
 			raise NameError("Unrecognized algorithm name. ")
 		
-
 	def naiveMove(self, board):
 		prevHumanMove = board.getPrevMove()
 		moveNumber = board.getNumMoves()
