@@ -25,7 +25,29 @@ class ConnectFourBoard(object):
 	def getRow(self, rowNumber):
 		assert(rowNumber >= 0 and rowNumber < self.height)
 		return [column[rowNumber] for column in self.columns]
-
+	
+	
+	def getRows(self):
+		return [self.getRow(rowNumber) for rowNumber in range(self.height)]
+	
+	
+	def getDiagonal(self, yIntercept, slope):
+		diagonal = []
+		for x in range(self.width):
+			y = yIntercept + slope * x
+			if y >= 0 and y < self.height:
+				diagonal.append(self.columns[x][y])
+		return diagonal
+				
+				
+	def getDiagonals(self):
+		diagonals = []
+		for coordinateSum in range(self.height+self.width-1):
+			diagonals.append(self.getDiagonal(yIntercept=coordinateSum, slope=-1))
+		for coordinateDiff in range(1-self.width, self.height):
+			diagonals.append(self.getDiagonal(yIntercept=coordinateDiff, slope=1))
+		return diagonals
+		
 
 	def isFull(self):
 		return len(self.moves) == self.width * self.height
@@ -57,15 +79,12 @@ class ConnectFourBoard(object):
 
 	def containsFourInARow(self):
 		"""Searches for four in row/column/diagonal R's or B's."""
-		for rowNum in range(self.height):
-			winningColor = self.scan(self.getRow(rowNum))
+		lines = self.columns + self.getRows() + self.getDiagonals()
+		for line in lines:
+			winningColor = self.scan(line)
 			if winningColor is not None: return winningColor
-		for column in self.columns:
-			winningColor = self.scan(column)
-			if winningColor is not None: return winningColor
-		return None 
-		# TODO - scan diagonals
-
+		return None
+			
 
 	def display(self):
 		"""Simple function to display board in the terminal."""
@@ -78,9 +97,7 @@ class ConnectFourBoard(object):
 
 
 	def getPrevMove(self):
-		if len(self.moves) == 0:
-			return 3
-		return self.moves[len(self.moves)-1]
+		return 3 if len(self.moves) == 0 else self.moves[len(self.moves)-1]
 
 
 	def undoMove(self):

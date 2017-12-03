@@ -23,7 +23,6 @@ class ConnectFourAgent(object):
 	def setColor(self, color):
 		self.color = color 
 
-
 	def getMove(self, board=None):
 		if self.algorithm == "naive":
 			return self.naiveMove(board)
@@ -36,7 +35,6 @@ class ConnectFourAgent(object):
 		else:
 			raise NameError("Unrecognized algorithm name. ")
 		
-
 	def naiveMove(self, board):
 		prevHumanMove = board.getPrevMove()
 		moveNumber = board.getNumMoves()
@@ -52,10 +50,10 @@ class ConnectFourAgent(object):
 			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
-		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color)
+		return self.minimaxSolver.bestMove(self.minimax_depth, copy.deepcopy(board), self.color)
 
 	def alphaBetaMove(self, board):
-		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
+		return self.minimaxSolver.bestMove(self.minimax_depth, copy.deepcopy(board), self.color, True)
 
 	def expectimaxMove(self, board):
 		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
