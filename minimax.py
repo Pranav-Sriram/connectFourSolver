@@ -1,15 +1,7 @@
+
 __author__ = 'catherinaxu'
 
 import board
-
-# Python Final Project
-# Connect Four
-#
-# Erik Ackermann
-# Charlene Wang
-#
-# Connect 4 Module
-# February 27, 2012
 
 import random, sys
 
@@ -38,13 +30,13 @@ class Minimax(object):
         legal_moves = {} # will map legal move states to their alpha values
         for col in range(7):
             # if column i is a legal move...
-            if board.isLegalMove(col):
+            if self.isLegalMove(col, state):
                 # make the move in column 'col' for curr_player
                 temp = self.makeMove(state, col, curr_player)
                 if alpha_beta:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, board)
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
                 else:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, board)
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
         best_alpha = neg_inf
         best_move = None
         moves = list(legal_moves.items())
@@ -55,11 +47,10 @@ class Minimax(object):
                 best_move = move
         return best_move
 
-    def search(self, depth, state, curr_player, board):
+    def search(self, depth, state, curr_player):
         """ Searches the tree at depth 'depth'
             By default, the state is the board 2d array, and curr_player is whomever
             called this search
-
             Returns the alpha value
         """
 
@@ -67,7 +58,7 @@ class Minimax(object):
         legal_moves = []
         for i in range(7):
             # if column i is a legal move...
-            if board.isLegalMove(i):
+            if self.isLegalMove(i, state):
                 # make the move in column i for curr_player
                 temp = self.makeMove(state, i, curr_player)
                 legal_moves.append(temp)
@@ -84,15 +75,14 @@ class Minimax(object):
         for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            alpha = max(alpha, -self.search(depth-1, child, opp_player, board))
+            alpha = max(alpha, -self.search(depth-1, child, opp_player))
         return alpha
 
     # Search with alpha-beta pruning
-    def search_alpha_beta(self, depth, state, curr_player, a, b, board):
+    def search_alpha_beta(self, depth, state, curr_player, a, b):
         """ Searches the tree at depth 'depth'
             By default, the state is the board, and curr_player is whomever
             called this search
-
             Returns the alpha value
         """
 
@@ -100,7 +90,7 @@ class Minimax(object):
         legal_moves = []
         for i in range(7):
             # if column i is a legal move...
-            if board.isLegalMove(i):
+            if self.isLegalMove(i, state):
                 # make the move in column i for curr_player
                 temp = self.makeMove(state, i, curr_player)
                 legal_moves.append(temp)
@@ -117,12 +107,24 @@ class Minimax(object):
         for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, board)
+            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b)
             alpha = max(alpha, child)
             a = max(a, alpha)
             if b <= a:
                 return child
         return alpha
+
+    def isLegalMove(self, column, state):
+        """ Boolean function to check if a move (column) is a legal move
+        """
+        for i in range(6):
+            if state[i][column] == 'O':
+
+                # once we find the first empty, we know it's a legal move
+                return True
+
+        # if we get here, the column is full
+        return False
 
     def gameIsOver(self, state):
         if self.checkForStreak(state, "R", 4) >= 1:
@@ -136,7 +138,6 @@ class Minimax(object):
     def makeMove(self, state, column, color):
         """ Change a state object to reflect a player, denoted by color,
             making a move at column 'column'
-
             Returns a copy of new state array with the added move
         """
 
