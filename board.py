@@ -88,7 +88,7 @@ class ConnectFourBoard(object):
 
 	def display(self):
 		"""Simple function to display board in the terminal."""
-		print("Displaying board: ")
+		print("Displaying board now: ")
 		for i in range(self.height-1, -1, -1):   # Iterate over rows from top to bottom
 			rowString = ""
 			for column in self.columns:
