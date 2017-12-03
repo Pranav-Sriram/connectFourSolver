@@ -31,6 +31,8 @@ class ConnectFourAgent(object):
 			return self.minimaxMove(board)
 		elif self.algorithm == "alphabeta":
 			return self.alphaBetaMove(board)
+		elif self.algorithm == "expectimax":
+			return self.expectimaxMove(board)
 		else:
 			raise NameError("Unrecognized algorithm name. ")
 		
@@ -53,6 +55,9 @@ class ConnectFourAgent(object):
 		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color)
 
 	def alphaBetaMove(self, board):
+		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
+
+	def expectimaxMove(self, board):
 		return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
 
 	def getAction(self, board):
