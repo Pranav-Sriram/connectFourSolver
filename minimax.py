@@ -84,7 +84,7 @@ class Minimax(object):
         for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            alpha = max(alpha, -self.search(depth-1, child, opp_player))
+            alpha = max(alpha, -self.search(depth-1, child, opp_player, board))
         return alpha
 
     # Search with alpha-beta pruning
@@ -117,7 +117,7 @@ class Minimax(object):
         for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b)
+            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, board)
             alpha = max(alpha, child)
             a = max(a, alpha)
             if b <= a:
