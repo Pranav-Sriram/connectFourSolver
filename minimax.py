@@ -38,13 +38,13 @@ class Minimax(object):
         legal_moves = {} # will map legal move states to their alpha values
         for col in range(7):
             # if column i is a legal move...
-            if self.isLegalMove(col, state):
+            if board.isLegalMove(col):
                 # make the move in column 'col' for curr_player
                 temp = self.makeMove(state, col, curr_player)
                 if alpha_beta:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, board)
                 else:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, board)
         best_alpha = neg_inf
         best_move = None
         moves = list(legal_moves.items())
@@ -55,7 +55,7 @@ class Minimax(object):
                 best_move = move
         return best_move
 
-    def search(self, depth, state, curr_player):
+    def search(self, depth, state, curr_player, board):
         """ Searches the tree at depth 'depth'
             By default, the state is the board 2d array, and curr_player is whomever
             called this search
@@ -67,7 +67,7 @@ class Minimax(object):
         legal_moves = []
         for i in range(7):
             # if column i is a legal move...
-            if self.isLegalMove(i, state):
+            if board.isLegalMove(i):
                 # make the move in column i for curr_player
                 temp = self.makeMove(state, i, curr_player)
                 legal_moves.append(temp)
@@ -88,7 +88,7 @@ class Minimax(object):
         return alpha
 
     # Search with alpha-beta pruning
-    def search_alpha_beta(self, depth, state, curr_player, a, b):
+    def search_alpha_beta(self, depth, state, curr_player, a, b, board):
         """ Searches the tree at depth 'depth'
             By default, the state is the board, and curr_player is whomever
             called this search
@@ -100,7 +100,7 @@ class Minimax(object):
         legal_moves = []
         for i in range(7):
             # if column i is a legal move...
-            if self.isLegalMove(i, state):
+            if board.isLegalMove(i):
                 # make the move in column i for curr_player
                 temp = self.makeMove(state, i, curr_player)
                 legal_moves.append(temp)
@@ -123,18 +123,6 @@ class Minimax(object):
             if b <= a:
                 return child
         return alpha
-
-    def isLegalMove(self, column, state):
-        """ Boolean function to check if a move (column) is a legal move
-        """
-        for i in range(6):
-            if state[i][column] == 'O':
-
-                # once we find the first empty, we know it's a legal move
-                return True
-
-        # if we get here, the column is full
-        return False
 
     def gameIsOver(self, state):
         if self.checkForStreak(state, "R", 4) >= 1:
