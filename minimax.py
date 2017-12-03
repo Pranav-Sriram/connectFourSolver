@@ -147,6 +147,28 @@ class Minimax(object):
                 temp[i][column] = color
                 return temp
 
+    def value0(self, state, color):
+        """ Simple heuristic to evaluate board configurations
+            Heuristic is (num of 4-in-a-rows)*99999 + (num of 3-in-a-rows)*100 +
+            (num of 2-in-a-rows)*10 - (num of opponent 4-in-a-rows)*99999 - (num of opponent
+            3-in-a-rows)*100 - (num of opponent 2-in-a-rows)*10
+        """
+        if color == 'R':
+            o_color = 'B'
+        else:
+            o_color = 'R'
+
+        my_fours = self.checkForStreak(state, color, 4, 0)
+        my_threes = self.checkForStreak(state, color, 3, 0)
+        my_twos = self.checkForStreak(state, color, 2, 0)
+        opp_fours = self.checkForStreak(state, o_color, 4, 0)
+        #opp_threes = self.checkForStreak(state, o_color, 3)
+        #opp_twos = self.checkForStreak(state, o_color, 2)
+        if opp_fours > 0:
+            return -100000
+        else:
+            return my_fours * 100000 + my_threes * 100 + my_twos
+
     def value(self, state, color):
         """ Simple heuristic to evaluate board configurations
             Heuristic is (num of 4-in-a-rows)*99999 + (num of 3-in-a-rows)*100 +
@@ -158,52 +180,83 @@ class Minimax(object):
         else:
             o_color = 'R'
 
-        my_fours = self.checkForStreak(state, color, 4)
-        my_threes = self.checkForStreak(state, color, 3)
-        my_twos = self.checkForStreak(state, color, 2)
-        opp_fours = self.checkForStreak(state, o_color, 4)
-        #opp_threes = self.checkForStreak(state, o_color, 3)
-        #opp_twos = self.checkForStreak(state, o_color, 2)
+        my_fours = self.checkForStreak(state, color, 4, 0)
+        my_threes = self.checkForStreak(state, color, 3, 0)
+        my_twos = self.checkForStreak(state, color, 2, 0)
+        opp_fours = self.checkForStreak(state, o_color, 4, 0)
+        opp_threes = self.checkForStreak(state, o_color, 3)
+        opp_twos = self.checkForStreak(state, o_color, 2)
+
+        my_fours_one_space = self.checkForStreak(state, color, 4, 1)
+        my_threes_one_space = self.checkForStreak(state, color, 3, 1)
+        my_fours_two_space = self.checkForStreak(state, color, 4, 2)
+        opp_fours_one_space = self.checkForStreak(state, o_color, 4, 1)
+        opp_threes_one_space = self.checkForStreak(state, o_color, 3, 1)
+        opp_fours_two_space = self.checkForStreak(state, o_color, 4, 2)
+
+        undefeatable_streak = self.checkForUndefeatableStreak(state, color, 'O')
+        opp_undefeatable_streak = self.checkForUndefeatableStreak(state, o_color, 'O')
+
+        my_threes_useless = self.checkForUndefeatableStreak(state, color, o_color)
+        opp_threes_useless = self.checkForUndefeatableStreak(state, o_color, color)
+
         if opp_fours > 0:
             return -100000
         else:
-            return my_fours * 100000 + my_threes * 100 + my_twos
+            return my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
 
-    def checkForStreak(self, state, color, streak):
+    # Check for a 3-in-a-row with empty spaces on both sides :0
+    def checkForSurroundedStreak(self, state, color, surrounding_color):
+        count = 0
+        for i in range(6):
+            for j in range(7):
+                # ...that is of the color we're looking for...
+                if state[i][j] == 'O':
+                    if self.verticalStreak(i, j, state, 3, 0):
+                        next_row = i+1
+                        if next_row < 6 and state[next_row][j] == surrounding_color:
+                            count += 1
+                    if self.horizontalStreak(i, j, state, 3, 0):
+                        next_col = j+1
+                        if next_col < 7 and state[i][next_col] == surrounding_color:
+                            count += 1
+                    if self.horizontalStreak(i, j, state, 3, 0):
+                        next_col = j+1
+                        if next_col < 7 and state[i][next_col] == surrounding_color:
+                            count += 1
+                    for end_diag in self.diagonalCheck(i, j, state, 3, 0):
+                        if end_diag[0] < 6 and end_diag[1] < 7 and end_diag[0] >= 0 and end_diag[1] >= 0:
+                            if state[end_diag[0]][end_diag[1]] == surrounding_color:
+                                count += 1
+        return count
+
+    # Returns the number of streaks of length `streak_len`, with `num_empty_allowed` empty spaces allowed in the middle at the end of streaks.
+    def checkForStreak(self, state, color, streak_len, num_empty_allowed=0):
         count = 0
         # for each piece in the board...
         for i in range(6):
             for j in range(7):
                 # ...that is of the color we're looking for...
-                if state[i][j].lower() == color.lower():
+                if state[i][j].lower() == color.lower() or (num_empty_allowed > 0 and state[i][j] == 'O'):
                     # check if a vertical streak starts at (i, j)
-                    count += self.verticalStreak(i, j, state, streak)
+                    count += self.verticalStreak(i, j, state, streak_len, num_empty_allowed)
 
                     # check if a horizontal four-in-a-row starts at (i, j)
-                    count += self.horizontalStreak(i, j, state, streak)
+                    count += self.horizontalStreak(i, j, state, streak_len, num_empty_allowed)
 
                     # check if a diagonal (either way) four-in-a-row starts at (i, j)
-                    count += self.diagonalCheck(i, j, state, streak)
+                    count += len(self.diagonalCheck(i, j, state, streak_len, num_empty_allowed))
         # return the sum of streaks of length 'streak'
         return count
 
-    def verticalStreak(self, row, col, state, streak):
+    def verticalStreak(self, row, col, state, streak, num_empty_allowed):
         consecutiveCount = 0
+        emptyCount = 0
         for i in range(row, 6):
             if state[i][col].lower() == state[row][col].lower():
                 consecutiveCount += 1
-            else:
-                break
-
-        if consecutiveCount >= streak:
-            return 1
-        else:
-            return 0
-
-    def horizontalStreak(self, row, col, state, streak):
-        consecutiveCount = 0
-        for j in range(col, 7):
-            if state[row][j].lower() == state[row][col].lower():
+            elif emptyCount < num_empty_allowed and state[i][col] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
@@ -213,37 +266,65 @@ class Minimax(object):
         else:
             return 0
 
-    def diagonalCheck(self, row, col, state, streak):
+    def horizontalStreak(self, row, col, state, streak, num_empty_allowed):
+        consecutiveCount = 0
+        emptyCount = 0
+        for j in range(col, 7):
+            if state[row][j].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[row][j] == 'O':
+                emptyCount += 1
+                consecutiveCount += 1
+            else:
+                break
 
-        total = 0
+        if consecutiveCount >= streak:
+            return 1
+        else:
+            return 0
+
+    # Return list of (r, c) cells where the diagonal ends
+    def diagonalCheck(self, row, col, state, streak, num_empty_allowed):
+
+        streaks = []
         # check for diagonals with positive slope
         consecutiveCount = 0
+        emptyCount = 0
         j = col
+        i = 0
         for i in range(row, 6):
             if j > 6:
                 break
             elif state[i][j].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[i][j] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
             j += 1 # increment column when row is incremented
 
         if consecutiveCount >= streak:
-            total += 1
+            streaks.append((i, j))
 
         # check for diagonals with negative slope
         consecutiveCount = 0
+        emptyCount = 0
         j = col
+        i = 0
         for i in range(row, -1, -1):
             if j > 6:
                 break
             elif state[i][j].lower() == state[row][col].lower():
                 consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[i][j] == 'O':
+                emptyCount += 1
+                consecutiveCount += 1
             else:
                 break
             j += 1 # increment column when row is incremented
 
         if consecutiveCount >= streak:
-            total += 1
+            streaks.append((i, j))
 
-        return total
+        return streaks
