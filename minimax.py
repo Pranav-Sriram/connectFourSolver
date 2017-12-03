@@ -194,11 +194,11 @@ class Minimax(object):
         opp_threes_one_space = self.checkForStreak(state, o_color, 3, 1)
         opp_fours_two_space = self.checkForStreak(state, o_color, 4, 2)
 
-        undefeatable_streak = self.checkForUndefeatableStreak(state, color, 'O')
-        opp_undefeatable_streak = self.checkForUndefeatableStreak(state, o_color, 'O')
+        undefeatable_streak = self.checkForSurroundedStreak(state, color, 'O')
+        opp_undefeatable_streak = self.checkForSurroundedStreak(state, o_color, 'O')
 
-        my_threes_useless = self.checkForUndefeatableStreak(state, color, o_color)
-        opp_threes_useless = self.checkForUndefeatableStreak(state, o_color, color)
+        my_threes_useless = self.checkForSurroundedStreak(state, color, o_color)
+        opp_threes_useless = self.checkForSurroundedStreak(state, o_color, color)
 
         if opp_fours > 0:
             return -100000
