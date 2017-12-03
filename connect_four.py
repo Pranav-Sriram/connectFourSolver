@@ -46,26 +46,36 @@ class ConnectFourGame(object):
 
 if __name__=="__main__":
     parser = OptionParser()
-    parser.add_option("-t", type="int", dest="num_trials")
-    parser.add_option("-a", dest="alpha_beta")
+    
+    parser.add_option("-f", action="store_true", dest="computerFirst")  # makes computer start instead of human
+    parser.add_option("-a", action="store_true, dest="alphaBeta")  # uses alpha-beta pruning
+    parser.add_option("-d", action="store_true", dest="display")  # displays board after each move
+    parser.add_option("-t", type="int", dest="num_trials")  # simulate against random player for numTrials                 
     (flags, args) = parser.parse_args()
+    
+    algorithm = "minimax" if not flags.alphaBeta else "alphabeta"
+    displayOpt = bool(flags.display)                  
 
-    if flags.num_trials is None:
-        firstPlayer = HumanPlayer(name="Human")
-        secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="minimax")
-        if flags.alpha_beta is not None:
-            secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="alphabeta")
+    if flags.numTrials is None:
+        if flags.computerFirst:
+			firstPlayer = ConnectFourAgent(name="Computer", color="R", algorithm=algorithm)
+			secondPlayer = HumanPlayer(name="Human")
+		else:
+			firstPlayer = HumanPlayer(name="Human")
+        	secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm=algorithm)
+        
         game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
-        game.play()
+        game.play(display=displayOpt)
+					  
     else:
         results = {}
-        for i in xrange(flags.num_trials):
+        for i in range(flags.numTrials):			  
             firstPlayer = RandomPlayer(name="Random")
             secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="alphabeta")
             game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
             firstPlayer.setBoard(game.board)
-            winner = game.play(False)
-            if winner not in results:
+            winner = game.play(display=display)
+            if winner not in results.keys():
                 results[winner] = 0
             results[winner] += 1
-        print("Results after %d trials: %s" % (flags.num_trials, str(results)))
+        print("Results after %d trials: %s" % (flags.numTrials, str(results)))
