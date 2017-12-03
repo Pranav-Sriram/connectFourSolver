@@ -46,26 +46,24 @@ class ConnectFourGame(object):
 
 if __name__=="__main__":
     parser = OptionParser()
-    
     parser.add_option("-f", action="store_true", dest="computerFirst")  # makes computer start instead of human
-    parser.add_option("-a", action="store_true, dest="alphaBeta")  # uses alpha-beta pruning
+    parser.add_option("-a", action="store_true", dest="alphaBeta")  # uses alpha-beta pruning
     parser.add_option("-d", action="store_true", dest="display")  # displays board after each move
-    parser.add_option("-t", type="int", dest="num_trials")  # simulate against random player for numTrials                 
+    parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials                 
     (flags, args) = parser.parse_args()
     
-    algorithm = "minimax" if not flags.alphaBeta else "alphabeta"
-    displayOpt = bool(flags.display)                  
+    algorithm = "minimax" if not flags.alphaBeta else "alphabeta"               
 
     if flags.numTrials is None:
         if flags.computerFirst:
-			firstPlayer = ConnectFourAgent(name="Computer", color="R", algorithm=algorithm)
-			secondPlayer = HumanPlayer(name="Human")
-		else:
-			firstPlayer = HumanPlayer(name="Human")
-        	secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm=algorithm)
-        
+            firstPlayer = ConnectFourAgent(name="Computer", color="R", algorithm=algorithm)
+            secondPlayer = HumanPlayer(name="Human")
+        else:
+            firstPlayer = HumanPlayer(name="Human")
+            secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm=algorithm)
+
         game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
-        game.play(display=displayOpt)
+        game.play(display=bool(flags.display))
 					  
     else:
         results = {}
@@ -74,7 +72,7 @@ if __name__=="__main__":
             secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="alphabeta")
             game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
             firstPlayer.setBoard(game.board)
-            winner = game.play(display=display)
+            winner = game.play(display=False)
             if winner not in results.keys():
                 results[winner] = 0
             results[winner] += 1
