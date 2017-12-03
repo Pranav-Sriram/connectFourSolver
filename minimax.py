@@ -170,40 +170,41 @@ class Minimax(object):
             return my_fours * 100000 + my_threes * 100 + my_twos
 
     def value(self, state, color):
-        """ Simple heuristic to evaluate board configurations
-            Heuristic is (num of 4-in-a-rows)*99999 + (num of 3-in-a-rows)*100 +
-            (num of 2-in-a-rows)*10 - (num of opponent 4-in-a-rows)*99999 - (num of opponent
-            3-in-a-rows)*100 - (num of opponent 2-in-a-rows)*10
+        """ 
         """
         if color == 'R':
             o_color = 'B'
         else:
             o_color = 'R'
 
-        my_fours = self.checkForStreak(state, color, 4, 0)
-        my_threes = self.checkForStreak(state, color, 3, 0)
-        my_twos = self.checkForStreak(state, color, 2, 0)
-        opp_fours = self.checkForStreak(state, o_color, 4, 0)
-        opp_threes = self.checkForStreak(state, o_color, 3)
-        opp_twos = self.checkForStreak(state, o_color, 2)
+        feature_dict = {}  # map from feature name to tuple (feature_value, weight)
 
-        my_fours_one_space = self.checkForStreak(state, color, 4, 1)
-        my_threes_one_space = self.checkForStreak(state, color, 3, 1)
-        my_fours_two_space = self.checkForStreak(state, color, 4, 2)
-        opp_fours_one_space = self.checkForStreak(state, o_color, 4, 1)
-        opp_threes_one_space = self.checkForStreak(state, o_color, 3, 1)
-        opp_fours_two_space = self.checkForStreak(state, o_color, 4, 2)
 
-        undefeatable_streak = self.checkForSurroundedStreak(state, color, 'O')
-        opp_undefeatable_streak = self.checkForSurroundedStreak(state, o_color, 'O')
+        feature_dict["my_fours"] = (self.checkForStreak(state, color, 4, 0), 100000.0)
+        feature_dict["my_threes"] = (self.checkForStreak(state, color, 3, 0), 5.0)
+        feature_dict["my_twos"] = (self.checkForStreak(state, color, 2, 0), 1.0)
+        feature_dict["opp_fours"] = (self.checkForStreak(state, o_color, 4, 0), -100000.0)
+        feature_dict["opp_threes"] = (self.checkForStreak(state, o_color, 3), -5.0)
+        feature_dict["opp_twos"] = (self.checkForStreak(state, o_color, 2), -1.0)
 
-        my_threes_useless = self.checkForSurroundedStreak(state, color, o_color)
-        opp_threes_useless = self.checkForSurroundedStreak(state, o_color, color)
+        feature_dict["my_fours_one_space"] = (self.checkForStreak(state, color, 4, 1), 3.0)
+        feature_dict["my_threes_one_space"] = (self.checkForStreak(state, color, 3, 1), 1.0)
+        feature_dict["my_fours_two_space"] = (self.checkForStreak(state, color, 4, 2), 1.0)
+        feature_dict["opp_fours_one_space"] = (self.checkForStreak(state, o_color, 4, 1), -3.0)
+        feature_dict["opp_threes_one_space"] = (self.checkForStreak(state, o_color, 3, 1), -1.0)
+        feature_dict["opp_fours_two_space"] = (self.checkForStreak(state, o_color, 4, 2), -1.0)
 
-        if opp_fours > 0:
+        feature_dict["my_undefeatable_streak"] = (self.checkForSurroundedStreak(state, color, 'O'), 5.0)
+        feature_dict["opp_undefeatable_streak"] = (self.checkForSurroundedStreak(state, o_color, 'O'), -5.0)
+
+        feature_dict["my_threes_useless"] = (self.checkForSurroundedStreak(state, color, o_color), 0.5)
+        feature_dict["opp_threes_useless"] = (self.checkForSurroundedStreak(state, o_color, color), -0.5)
+
+        if feature_dict["opp_fours"] > 0:
             return -100000
         else:
-            return my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
+            return sum([val[0] * val[1] for val in feature_dict.items()])
+            # my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
 
     # Check for a 3-in-a-row with empty spaces on both sides :0
     def checkForSurroundedStreak(self, state, color, surrounding_color):
