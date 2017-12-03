@@ -14,6 +14,7 @@ class ConnectFourGame(object):
         self.secondPlayer = secondPlayer
         self.secondPlayer.setColor("B")
         self.gameOver = False
+        self.numMoves = 0
 
     def playMove(self, player, display=True):
         move = player.getMove(self.board)
@@ -22,6 +23,7 @@ class ConnectFourGame(object):
             print("Illegal Move. ")
             self.playMove(player, display)
         if display: self.board.display()
+        self.numMoves += 1
         return self.checkIfGameEnded()
 
     def checkIfGameEnded(self):
@@ -67,13 +69,33 @@ if __name__=="__main__":
 					  
     else:
         results = {}
+
+        #to conduct analysis on the 'significance' of the win or loss, store (num_aggregate_moves, num_instances) pairs
+        #more moves = good if you are losing more
+        #more moves = neutral if you are calling a draw
+        #more moves = bad if you are winning more
+
+        RWin_tuple = [0, 0]
+        BWin_tuple = [0, 0]
+
         for i in range(flags.numTrials):			  
-            firstPlayer = RandomPlayer(name="Random")
-            secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm="alphabeta")
+            firstPlayer = ConnectFourAgent(name="Computer1", color="R", algorithm="minimax")
+            secondPlayer = ConnectFourAgent(name="Computer1", color="B", algorithm="naive")
             game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
-            firstPlayer.setBoard(game.board)
             winner = game.play(display=False)
             if winner not in results.keys():
                 results[winner] = 0
             results[winner] += 1
+            print(game.numMoves)
+            if winner == 'R':
+                RWin_tuple[0] += game.numMoves
+                RWin_tuple[1] += 1
+            elif winner == 'B':
+                BWin_tuple[0] += game.numMoves
+                BWin_tuple[1] += 1
+
         print("Results after %d trials: %s" % (flags.numTrials, str(results)))
+        if RWin_tuple[1] != 0:
+            print("Average moves in R wins (lower -> better): %d" % (float(RWin_tuple[0]) / float(RWin_tuple[1])))
+        if BWin_tuple[1] != 0:
+            print("Average moves in B wins (lower -> better): %d" % (float(BWin_tuple[0]) / float(BWin_tuple[1])))

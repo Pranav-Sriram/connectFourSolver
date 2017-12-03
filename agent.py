@@ -47,7 +47,7 @@ class ConnectFourAgent(object):
 		for move in priorityList:
 			if board.isLegalMove(move): return move
 
-		for i in range(self.board.width):
+		for i in range(board.width):
 			if board.isLegalMove(i): return i
 
 	def minimaxMove(self, board):
