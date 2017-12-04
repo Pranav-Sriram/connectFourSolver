@@ -79,8 +79,8 @@ if __name__=="__main__":
         BWin_tuple = [0, 0]
 
         for i in range(flags.numTrials):			  
-            firstPlayer = ConnectFourAgent(name="Computer1", color="R", algorithm="minimax")
-            secondPlayer = ConnectFourAgent(name="Computer1", color="B", algorithm="naive")
+            firstPlayer = ConnectFourAgent(name="Computer1", color="R", algorithm="minimax", depth=4)
+            secondPlayer = ConnectFourAgent(name="Computer2", color="B", algorithm="minimax", depth=3)
             game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
             winner = game.play(display=False)
             if winner not in results.keys():
@@ -96,6 +96,6 @@ if __name__=="__main__":
 
         print("Results after %d trials: %s" % (flags.numTrials, str(results)))
         if RWin_tuple[1] != 0:
-            print("Average moves in R wins (lower -> better): %d" % (float(RWin_tuple[0]) / float(RWin_tuple[1])))
+            print("Average moves in R wins (lower -> better): %.2f" % (float(RWin_tuple[0]) / float(RWin_tuple[1])))
         if BWin_tuple[1] != 0:
-            print("Average moves in B wins (lower -> better): %d" % (float(BWin_tuple[0]) / float(BWin_tuple[1])))
+            print("Average moves in B wins (lower -> better): %.2f" % (float(BWin_tuple[0]) / float(BWin_tuple[1])))

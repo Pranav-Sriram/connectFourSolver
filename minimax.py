@@ -36,7 +36,7 @@ class Minimax(object):
                 if alpha_beta:
                     legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
                 else:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+                    legal_moves[col] = -self.search(depth-1, temp, opp_player)
         best_alpha = neg_inf
         best_move = None
         moves = list(legal_moves.items())
@@ -66,7 +66,7 @@ class Minimax(object):
         # if this node (state) is a terminal node or depth == 0...
         if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
             # return the heuristic value of node
-            return self.value(state, curr_player)
+            return self.value0(state, curr_player)
 
         # determine opponent's color
         opp_player = "B" if curr_player == "R" else "R"
@@ -98,7 +98,7 @@ class Minimax(object):
         # if this node (state) is a terminal node or depth == 0...
         if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
             # return the heuristic value of node
-            return self.value(state, curr_player)
+            return self.value0(state, curr_player)
 
         # determine opponent's color
         opp_player = "B" if curr_player == "R" else "B"
