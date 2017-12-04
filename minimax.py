@@ -203,7 +203,7 @@ class Minimax(object):
         if feature_dict["opp_fours"] > 0:
             return -100000
         else:
-            return sum([val[0] * val[1] for val in feature_dict.values()])
+            return sum([val[0] * val[1] for val in feature_dict.values()])  # weighted sum of feature values
             # my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
 
     # Check for a 3-in-a-row with empty spaces on both sides :0
