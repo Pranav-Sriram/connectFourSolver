@@ -25,10 +25,9 @@ class TemporalDifferenceLearner(object):
 		boardMatrix = self.boardToMatrix(self.board)
 		return 0.0  # TODO - forward pass 
 
-
 	def train(self, numGames):
 		self.results = {"R": 0, "B": 0, "Draw": 0}
-		for it in numGames:
+		for it in range(numGames):
 			self.playVirtualGame()
 
 	def getBestMove(self, color):
@@ -46,7 +45,6 @@ class TemporalDifferenceLearner(object):
 				bestMove = move 
 			board.undoMove()  # important! This undoes scratch work 
 		return bestMove, bestValue
-
 
 	def move(self, color): 	
 		winner = self.board.containsFourInARow()
@@ -76,6 +74,3 @@ class TemporalDifferenceLearner(object):
 			self.move("R")
 			if not self.gameIsOver(): self.move("B")
 		self.results[self.gameResult] += 1
-
-
-
