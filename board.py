@@ -21,15 +21,12 @@ class ConnectFourBoard(object):
 		self.redString = "".join(["R"] * connectK)  # scan board for this pattern to see if red has won
 		self.blackString = "".join(["B"] * connectK)
 
-
 	def getRow(self, rowNumber):
 		assert(rowNumber >= 0 and rowNumber < self.height)
-		return [column[rowNumber] for column in self.columns]
-	
+		return [column[rowNumber] for column in self.columns]	
 	
 	def getRows(self):
 		return [self.getRow(rowNumber) for rowNumber in range(self.height)]
-	
 	
 	def getDiagonal(self, yIntercept, slope):
 		diagonal = []
@@ -39,19 +36,16 @@ class ConnectFourBoard(object):
 				diagonal.append(self.columns[x][y])
 		return diagonal
 				
-				
 	def getDiagonals(self):
 		diagonals = []
 		for coordinateSum in range(self.height+self.width-1):
 			diagonals.append(self.getDiagonal(yIntercept=coordinateSum, slope=-1))
 		for coordinateDiff in range(1-self.width, self.height):
 			diagonals.append(self.getDiagonal(yIntercept=coordinateDiff, slope=1))
-		return diagonals
-		
+		return diagonals	
 
 	def isFull(self):
 		return len(self.moves) == self.width * self.height
-
 
 	def isLegalMove(self, columnNumber):
 		"""Checks if a potential move is valid."""
@@ -59,6 +53,8 @@ class ConnectFourBoard(object):
 		if self.columnFillHeights[columnNumber] == self.height:  return False  # column full 
 		return True
 
+	def getLegalMove(self, columnNumber):
+		return [x for x in range(self.width) if self.isLegalMove(x)]
 
 	def addPiece(self, columnNumber, color):
 		"""Adds piece of given color to given column if legal."""
@@ -68,14 +64,12 @@ class ConnectFourBoard(object):
 		self.moves.append(columnNumber)
 		return True
 
-
 	def scan(self, line):
 		"""Scans a list of elements in a row, column, or diagonal for 4 in a row (or K in a row in general case)."""
 		lineStr = "".join(line) 
 		if lineStr.find(self.redString) >= 0: return "R"
 		if lineStr.find(self.blackString) >= 0: return "B"
 		return None
-
 
 	def containsFourInARow(self):
 		"""Searches for four in row/column/diagonal R's or B's."""
@@ -85,7 +79,6 @@ class ConnectFourBoard(object):
 			if winningColor is not None: return winningColor
 		return None
 			
-
 	def display(self):
 		"""Simple function to display board in the terminal."""
 		print("Displaying board now: ")
@@ -95,10 +88,8 @@ class ConnectFourBoard(object):
 				rowString = rowString + column[i] + " "
 			print rowString
 
-
 	def getPrevMove(self):
 		return 3 if len(self.moves) == 0 else self.moves[len(self.moves)-1]
-
 
 	def undoMove(self):
 		if len(self.moves) == 0: return 
@@ -106,10 +97,8 @@ class ConnectFourBoard(object):
 		self.columnFillHeights[prevColumn] -= 1
 		self.columns[prevColumn][self.columnFillHeights[prevColumn]] = '0'
 
-
 	def getNumMoves(self):
 		return len(self.moves)
-
 
 	def getState2dArray(self):
 		state = []
@@ -119,6 +108,4 @@ class ConnectFourBoard(object):
 				row.append(column[i])
 			state.append(row)
 		return state
-
-
 
