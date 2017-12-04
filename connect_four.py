@@ -51,18 +51,20 @@ if __name__=="__main__":
     parser.add_option("-f", action="store_true", dest="computerFirst")  # makes computer start instead of human
     parser.add_option("-a", action="store_true", dest="alphaBeta")  # uses alpha-beta pruning
     parser.add_option("-d", action="store_true", dest="display")  # displays board after each move
-    parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials                 
+    parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials      
+    parser.add_option("--depth", type="int", dest="depth")           
     (flags, args) = parser.parse_args()
     
-    algorithm = "minimax" if not flags.alphaBeta else "alphabeta"               
+    algorithm = "minimax" if not flags.alphaBeta else "alphabeta" 
+    depth = 3 if not hasattr(flags, "depth") else flags.depth               
 
     if flags.numTrials is None:
         if flags.computerFirst:
-            firstPlayer = ConnectFourAgent(name="Computer", color="R", algorithm=algorithm)
+            firstPlayer = ConnectFourAgent(name="Computer", color="R", algorithm=algorithm, depth=depth)
             secondPlayer = HumanPlayer(name="Human")
         else:
             firstPlayer = HumanPlayer(name="Human")
-            secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm=algorithm)
+            secondPlayer = ConnectFourAgent(name="Computer", color="B", algorithm=algorithm, depth=depth)
 
         game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
         game.play(display=bool(flags.display))
@@ -78,7 +80,7 @@ if __name__=="__main__":
         RWin_tuple = [0, 0]
         BWin_tuple = [0, 0]
 
-        for i in range(flags.numTrials):			  
+        for i in range(flags.numTrials):
             firstPlayer = ConnectFourAgent(name="Computer1", color="R", algorithm="minimax", depth=4)
             secondPlayer = ConnectFourAgent(name="Computer2", color="B", algorithm="minimax", depth=3)
             game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
