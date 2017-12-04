@@ -53,7 +53,7 @@ class ConnectFourBoard(object):
 		if self.columnFillHeights[columnNumber] == self.height:  return False  # column full 
 		return True
 
-	def getLegalMove(self, columnNumber):
+	def getLegalMoves(self, columnNumber):
 		return [x for x in range(self.width) if self.isLegalMove(x)]
 
 	def addPiece(self, columnNumber, color):
@@ -93,7 +93,7 @@ class ConnectFourBoard(object):
 
 	def undoMove(self):
 		if len(self.moves) == 0: return 
-		prevColumn = self.moves.pop()
+		prevColumn = self.moves.pop()  # remove move from self.moves
 		self.columnFillHeights[prevColumn] -= 1
 		self.columns[prevColumn][self.columnFillHeights[prevColumn]] = '0'
 
