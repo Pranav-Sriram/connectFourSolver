@@ -49,7 +49,6 @@ class ConnectFourGame(object):
                 return winner
             player_index = (player_index + 1) % 2
 
-
 def simulate(numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=None):
     for i in range(flags.numTrials):
         game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
@@ -74,16 +73,20 @@ def simulate(numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=None):
         print("Average moves in B wins (lower -> better): %.2f" % (float(BWin_tuple[0]) / float(BWin_tuple[1])))
 
 
-if __name__=="__main__":
+def getParserOptions():
     parser = OptionParser()
     parser.add_option("-f", action="store_true", dest="computerFirst")  # makes computer start instead of human
     parser.add_option("-a", action="store_true", dest="alphaBeta")  # uses alpha-beta pruning
     parser.add_option("-d", action="store_true", dest="display")  # displays board after each move
     parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials      
     parser.add_option("--depth", type="int", dest="depth")           
+
     parser.add_option("-m", action="store_true", dest="mctsEnabled")  # whether to play against mcts
     parser.add_option("-b", type="int", dest="mctsBudget")
-    (flags, args) = parser.parse_args()
+    return parser.parse_args()
+
+if __name__=="__main__":
+    flags, args = getParserOptions()
     
     algorithm = "minimax" if not flags.alphaBeta else "alphabeta" 
     depth = 3 if flags.depth is None else flags.depth               
