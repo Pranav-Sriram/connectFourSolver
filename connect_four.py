@@ -8,7 +8,7 @@ from agent import ConnectFourAgent
 class ConnectFourGame(object):
 
     def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7, mcts_enabled=False, mctsPlayer=None, mcts_budget=1000):
-        self.board = ConnectFourBoard(boardHeight, boardWidth, mcts_enabled=mcts_enabled, mcts_color=mctsPlayer, mcts_budget=mcts_budget)  
+        self.board = ConnectFourBoard(boardHeight, boardWidth)
         self.firstPlayer = firstPlayer 
         self.firstPlayer.setColor("R")
         self.secondPlayer = secondPlayer
