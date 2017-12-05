@@ -47,13 +47,16 @@ class ConnectFourBoard(object):
 	def isFull(self):
 		return len(self.moves) == self.width * self.height
 
+	def isEmpty(self):
+		return len(self.moves) == 0
+
 	def isLegalMove(self, columnNumber):
 		"""Checks if a potential move is valid."""
 		if columnNumber < 0 or columnNumber >= self.width: return False  # column out of bounds
 		if self.columnFillHeights[columnNumber] == self.height:  return False  # column full 
 		return True
 
-	def getLegalMoves(self, columnNumber):
+	def getLegalMoves(self):
 		return [x for x in range(self.width) if self.isLegalMove(x)]
 
 	def addPiece(self, columnNumber, color):
@@ -95,7 +98,7 @@ class ConnectFourBoard(object):
 		if len(self.moves) == 0: return 
 		prevColumn = self.moves.pop()  # remove move from self.moves
 		self.columnFillHeights[prevColumn] -= 1
-		self.columns[prevColumn][self.columnFillHeights[prevColumn]] = '0'
+		self.columns[prevColumn][self.columnFillHeights[prevColumn]] = 'O'
 
 	def getNumMoves(self):
 		return len(self.moves)
