@@ -20,7 +20,7 @@ class ConnectFourGame(object):
         move = player.getMove(self.board)
         valid = self.board.addPiece(move, player.color)
         if not valid:
-            print("Illegal Move. ")
+            print("Illegal Move, try again. ")
             self.playMove(player, display)
         if display: self.board.display()
         self.numMoves += 1
@@ -51,7 +51,7 @@ if __name__=="__main__":
     parser.add_option("-f", action="store_true", dest="computerFirst")  # makes computer start instead of human
     parser.add_option("-a", action="store_true", dest="alphaBeta")  # uses alpha-beta pruning
     parser.add_option("-d", action="store_true", dest="display")  # displays board after each move
-    parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials      
+    parser.add_option("-t", type="int", dest="numTrials")  # simulatrie against random player for numTrials      
     parser.add_option("--depth", type="int", dest="depth")           
     (flags, args) = parser.parse_args()
     
