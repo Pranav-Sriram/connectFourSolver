@@ -3,9 +3,11 @@ import numpy as np
 import random
 import time
 import copy
+import agent 
 from connect_four import ConnectFourGame
 from player import HumanPlayer
 from board import ConnectFourBoard
+
 
 class TemporalDifferenceLearner(object):
 
@@ -44,6 +46,7 @@ class TemporalDifferenceLearner(object):
 		"""Reflex policies based on current value function, with epsilon-greedy."""
 		legalMoves = self.board.getLegalMoves()
 		if len(legalMoves) == 0: return None
+		random.shuffle(legalMoves)
 
 		# epsilon-greedy
 		if random.random() < epsilon:
@@ -133,10 +136,28 @@ def playAgainstHuman(humanColor, weightsFile):
 	game = ConnectFourGame(firstPlayer, secondPlayer)
 	game.play(display=True)
 
+def playAgainstMinimax(opponentColor, weightsFile, nGames=50, depth=1):
+	agentColor = "R" if opponentColor == "B" else "B"
+
+	if opponentColor == "R":
+		firstPlayer = agent.ConnectFourAgent(name="minimaxAgent", color="R", depth=depth)
+		secondPlayer = TemporalDifferenceLearner(weightsFile=weightsFile, color="B")  
+	else:
+		firstPlayer = TemporalDifferenceLearner(weightsFile=weightsFile, color="R")
+		secondPlayer = agent.ConnectFourAgent(name="minimaxAgent", color="B", depth=depth)
+
+	results = {"R": 0, "B": 0, "Draw": 0}
+
+	for it in range(nGames):
+		results[(ConnectFourGame(firstPlayer, secondPlayer, silent=True).play(display=False))] += 1
+	return results 
+
+
 if __name__=="__main__":
-	tdLearner = TemporalDifferenceLearner(color="R", outputWeightsFile="tdWeightsTest.npy")
-	tdLearner.train(numGames=5000)
-	playAgainstHuman(humanColor="B", weightsFile="tdWeightsTest.npy") 
+	# tdLearner = TemporalDifferenceLearner(color="R", outputWeightsFile="tdWeightsTest2.npy")
+	# tdLearner.train(numGames=20000)
+	results = playAgainstMinimax(opponentColor="R", weightsFile="tdWeightsTest2.npy", depth=3) 
+	print "Results: ", results 
 
 	#for it in range(10):
 	#	tdLearner.playVirtualGame(display=True, epsilon=0.0)

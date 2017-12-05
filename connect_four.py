@@ -7,12 +7,13 @@ from agent import ConnectFourAgent
 
 class ConnectFourGame(object):
 
-    def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7):
+    def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7, silent=False):
         self.board = ConnectFourBoard(boardHeight, boardWidth)  
         self.firstPlayer = firstPlayer 
         self.firstPlayer.setColor("R")
         self.secondPlayer = secondPlayer
         self.secondPlayer.setColor("B")
+        self.silent = silent 
         self.gameOver = False
         self.numMoves = 0
 
@@ -40,11 +41,12 @@ class ConnectFourGame(object):
             winner = self.playMove(players[player_index], display)
             if winner is not None:
                 if winner == 'Draw':
-                    print('Draw.')
+                    if not self.silent: print('Draw.')
                 else:
-                    print(winner + " won.")
+                    if not self.silent: print(winner + " won.")
                 return winner
             player_index = (player_index + 1) % 2
+
 
 def getParserOptions():
     parser = OptionParser()
