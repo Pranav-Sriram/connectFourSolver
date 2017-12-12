@@ -1,4 +1,4 @@
-# import tensorflow as tf 
+import tensorflow as tf 
 import numpy as np
 import random
 import time
@@ -26,6 +26,9 @@ class TemporalDifferenceLearner(object):
 
 		self.outputWeightsFile = "tdWeights.npy" if outputWeightsFile is None else outputWeightsFile
 
+	def setupWeights(self):
+		self.W1 = tf.
+
 	def boardToMatrix(self, board):
 		arr = np.zeros((self.height, self.width))
 		for row in range(self.height):
@@ -41,6 +44,8 @@ class TemporalDifferenceLearner(object):
 		curValue = self.evaluateBoard()  # forward pass or "prediction" - evaluation of current board state (red's perspective always)
 		gradient = (curValue - target) * self.boardToMatrix(self.board)
 		self.linearWeights -= self.eta * gradient
+
+
 
 	def getBestMove(self, color, epsilon=0.05):
 		"""Reflex policies based on current value function, with epsilon-greedy."""
@@ -154,9 +159,9 @@ def playAgainstMinimax(opponentColor, weightsFile, nGames=50, depth=1):
 
 
 if __name__=="__main__":
-	# tdLearner = TemporalDifferenceLearner(color="R", outputWeightsFile="tdWeightsTest2.npy")
-	# tdLearner.train(numGames=20000)
-	results = playAgainstMinimax(opponentColor="R", weightsFile="tdWeightsTest2.npy", depth=3) 
+	tdLearner = TemporalDifferenceLearner(color="R", outputWeightsFile="tdWeightsTest3.npy")
+	tdLearner.train(numGames=20000)
+	results = playAgainstMinimax(opponentColor="R", weightsFile="tdWeightsTest3.npy", depth=3) 
 	print "Results: ", results 
 
 	#for it in range(10):

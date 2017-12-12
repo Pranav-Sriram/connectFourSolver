@@ -1,3 +1,5 @@
+import mcts
+
 class ConnectFourBoard(object):
 	"""Encapsulates a connect four board.
 
