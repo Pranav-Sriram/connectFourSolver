@@ -46,16 +46,18 @@ class TemporalDifferenceLearner(object):
 		self.target = tf.placeholder(tf.float32, shape=None)
 		hidden1 = tf.nn.relu(tf.matmul(self.boardVec, self.W1))
 		hidden2 = tf.nn.relu(tf.matmul(hidden1, self.W2))
-		self.out = tf.matmul(hidden2, self.W3)
-		self.loss = 0.5 * (self.out - self.target) ** 2.0
+		self.evaluation = tf.matmul(hidden2, self.W3)
+		self.loss = 0.5 * (self.evaluation - self.target) ** 2.0
 
 	def setupTrainStep(self):
 		self.trainStep = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
 
 	def forwardEvaluation(self, boardVec):
-		return self.sess.run(self.out, feed_dict={self.boardVec: boardVec})
+		return self.sess.run(self.evaluation, feed_dict={self.boardVec: boardVec})
 
 	def backPropagate(self, boardVec, target):
+		print("Target: ", target)
+		print("Value: ", self.forwardEvaluation(boardVec))  # TEST
 		self.trainStep.run(feed_dict={self.boardVec: boardVec, self.target: target})
 
 	def boardToMatrix(self, board):
@@ -78,7 +80,7 @@ class TemporalDifferenceLearner(object):
 		gradient = (curValue - target) * self.boardToMatrix(self.board)
 		self.linearWeights -= self.eta * gradient
 
-	def getBestMove(self, color, epsilon=0.05):
+	def getBestMove(self, color, epsilon=0.02):
 		"""Reflex policies based on current value function, with epsilon-greedy."""
 		legalMoves = self.board.getLegalMoves()
 		if len(legalMoves) == 0: return None
@@ -104,7 +106,7 @@ class TemporalDifferenceLearner(object):
 			self.board.undoMove()  # important! This undoes scratch work done by looking ahead
 		return bestMove, bestValue
 
-	def makeMove(self, color): 	
+	def makeMove(self, color, epsilon): 	
 		winner = self.board.containsFourInARow()
 		if winner:
 			target = 10.0 if winner == "R" else -12.0
@@ -115,21 +117,21 @@ class TemporalDifferenceLearner(object):
 			self.gameIsOver = True
 			self.gameResult = "Draw"
 		else:  # regular move, game has not ended
-			bestMove, bestValue = self.getBestMove(color)
+			bestMove, bestValue = self.getBestMove(color, epsilon)
 			self.board.addPiece(bestMove, color)
 			target = bestValue * self.gamma 
 
 		self.backPropagate(self.boardToVec(self.board), target)
 
-	def playVirtualGame(self, display=False, epsilon=0.05):
+	def playVirtualGame(self, display=False, epsilon=0.02):
 		self.board = ConnectFourBoard(boardHeight=self.height, boardWidth=self.width)
 		self.gameIsOver = False
 		self.gameResult = None
 		while not self.gameIsOver:
-			self.makeMove("R")
+			self.makeMove("R", epsilon)
 			if display: self.display()
 			if not self.gameIsOver: 
-				self.makeMove("B")
+				self.makeMove("B", epsilon)
 				if display: self.display()
 		# print "Game ended with result: ", self.gameResult
 		self.results[self.gameResult] += 1
@@ -155,6 +157,7 @@ class TemporalDifferenceLearner(object):
 		"""Interface to ConnectFourGame objects."""
 		self.board = copy.copy(board)
 		bestMove, bestValue = self.getBestMove(color=self.color, epsilon=0.0)
+		print("Value: ", bestValue)  # TEST
 		return bestMove
 
 	
@@ -190,7 +193,7 @@ def playAgainstMinimax(opponentColor, tdAgent=None, nGames=50, depth=1):
 
 if __name__=="__main__":
 	tdLearner = TemporalDifferenceLearner(color="R")
-	tdLearner.train(numGames=4000)
+	tdLearner.train(numGames=2000)
 	playAgainstHuman(humanColor="B", tdAgent=tdLearner)
 	#results = playAgainstMinimax(opponentColor="R", weightsFile="tdWeightsTest3.npy", depth=3) 
 	#print "Results: ", results 

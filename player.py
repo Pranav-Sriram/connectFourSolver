@@ -13,7 +13,7 @@ class HumanPlayer(object):
         self.color = color 
 
     def getMove(self, board):
-        return input("Enter column number for move: ")
+        return int(input("Enter column number for move: "))
 
 class RandomPlayer(object):
     def __init__(self, name="Random", color=None, board=None):
