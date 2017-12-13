@@ -1,5 +1,3 @@
-import mcts
-
 class ConnectFourBoard(object):
 	"""Encapsulates a connect four board.
 
@@ -91,7 +89,7 @@ class ConnectFourBoard(object):
 			rowString = ""
 			for column in self.columns:
 				rowString = rowString + column[i] + " "
-			print rowString
+			print(rowString)
 
 	def getPrevMove(self):
 		return 3 if len(self.moves) == 0 else self.moves[len(self.moves)-1]
