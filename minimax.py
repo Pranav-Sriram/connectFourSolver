@@ -8,211 +8,339 @@ import random, sys
 neg_inf = float('-inf')
 inf = float('inf')
 
-
 class Minimax(object):
-    """ Minimax object that takes a current connect four play_board state
+    """ Minimax object that takes a current connect four board state
     """
+    color = None
 
-    play_board = None
-
-    def __init__(self, play_board):
-        # copy the play_board to self.play_board
+    def __init__(self):
+        # copy the board to self.board
         pass
 
-
-    def idealMove(self, depth, board, current_player, alpha_beta=False):
+    def bestMove(self, depth, board, curr_player, alpha_beta=False):
         """ Returns the best move (as a column number) and the associated alpha
             Calls search()
         """
         state = board.getState2dArray()
 
         # determine opponent's color
-        opponent_player = "B" if current_player == "R" else "R"
+        opp_player = "B" if curr_player == "R" else "R"
 
         # enumerate all legal moves
-        allowable_moves = {} # will map legal move states to their alpha values
-        for column in range(7):
+        legal_moves = {} # will map legal move states to their alpha values
+        for col in range(7):
             # if column i is a legal move...
-            if self.isAllowableMove(column, state):
+            if self.isLegalMove(col, state):
                 # make the move in column 'col' for curr_player
-                temp = self.makeMove(state, column, current_player)
-                allowable_moves[column] = -self.searchTree(depth-1, temp, opponent_player)
-
-        ideal_move = None
-        ideal_alpha = -10000000
-
-        moves = allowable_moves.items()
-
-        random.shuffle(list(moves))
+                temp = self.makeMove(state, col, curr_player)
+                if alpha_beta:
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, False)
+                else:
+                    legal_moves[col] = -self.search(depth-1, temp, opp_player)
+        best_alpha = neg_inf
+        best_move = None
+        moves = list(legal_moves.items())
+        random.shuffle(moves)
         for move, alpha in moves:
-            if alpha >= ideal_alpha:
-                ideal_alpha = alpha
-                ideal_move = move
+            if alpha >= best_alpha:
+                best_alpha = alpha
+                best_move = move
+        return best_move
 
-        return  ideal_move, ideal_alpha
-
-    def searchTree(self, depth, state, current_player):
+    def search(self, depth, state, curr_player):
         """ Searches the tree at depth 'depth'
-            By default, the state is the play_board, and curr_player is whomever
+            By default, the state is the board 2d array, and curr_player is whomever
             called this search
-
             Returns the alpha value
         """
 
         # enumerate all legal moves from this state
-        allowable_moves = []
+        legal_moves = []
         for i in range(7):
             # if column i is a legal move...
-            if self.isAllowableMove(i, state):
+            if self.isLegalMove(i, state):
                 # make the move in column i for curr_player
-                temp = self.makeMove(state, i, current_player)
-                allowable_moves.append(temp)
+                temp = self.makeMove(state, i, curr_player)
+                legal_moves.append(temp)
 
         # if this node (state) is a terminal node or depth == 0...
-        if depth == 0 or len(allowable_moves) == 0 or self.gameOver(state):
+        if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
             # return the heuristic value of node
-            return self.heuristic_eval(state, current_player)
+            return self.value0(state, curr_player)
 
         # determine opponent's color
-        opponent_player = "B" if current_player == "R" else "R"
+        opp_player = "B" if curr_player == "R" else "R"
 
-        alpha = -10000000
-        for child in allowable_moves:
+        alpha = float('-inf')
+        for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            alpha = max(alpha, -self.searchTree(depth-1, child, opponent_player))
+            alpha = max(alpha, -self.search(depth-1, child, opp_player))
         return alpha
 
-    def isAllowableMove(self, game_column, state):
-        """ Boolean function to check if a move (column) is a legal move
+    # Search with alpha-beta pruning
+    def search_alpha_beta(self, depth, state, curr_player, a, b, maximizing_player):
+        """ Searches the tree at depth 'depth'
+            By default, the state is the board, and curr_player is whomever
+            called this search
+            Returns the alpha value
         """
 
+        # enumerate all legal moves from this state
+        legal_moves = []
+        for i in range(7):
+            # if column i is a legal move...
+            if self.isLegalMove(i, state):
+                # make the move in column i for curr_player
+                temp = self.makeMove(state, i, curr_player)
+                legal_moves.append(temp)
+
+        # if this node (state) is a terminal node or depth == 0...
+        if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
+            # return the heuristic value of node
+            return self.value0(state, curr_player)
+
+        # determine opponent's color
+        opp_player = "B" if curr_player == "R" else "B"
+
+        if maximizing_player:
+            v = neg_inf
+            for child in legal_moves:
+                if child == None:
+                    print("child == None (search)")
+
+                child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, False)
+                v = max(v, child)
+                a = max(a, v)
+                if b <= a:
+                    break
+            return v
+        else:
+            v = inf
+            for child in legal_moves:
+                if child == None:
+                    print("child == None (search)")
+
+                child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, True)
+                v = min(v, child)
+                b = min(b, v)
+                if b <= a:
+                    break
+            return v
+
+
+    def isLegalMove(self, column, state):
+        """ Boolean function to check if a move (column) is a legal move
+        """
         for i in range(6):
-            if state[i][game_column] == ' ':
+            if state[i][column] == 'O':
+
                 # once we find the first empty, we know it's a legal move
                 return True
 
         # if we get here, the column is full
         return False
 
-    def gameOver(self, state):
-        if self.consecutiveCoins(state, 'R', 4) >= 1:
+    def gameIsOver(self, state):
+        if self.checkForStreak(state, "R", 4) >= 1:
             return True
-        elif self.consecutiveCoins(state, 'B', 4) >= 1:
+        elif self.checkForStreak(state, "B", 4) >= 1:
             return True
         else:
             return False
 
 
-    def makeMove(self, state, game_column, coin):
+    def makeMove(self, state, column, color):
         """ Change a state object to reflect a player, denoted by color,
             making a move at column 'column'
-
             Returns a copy of new state array with the added move
         """
 
         temp = [x[:] for x in state]
         for i in range(6):
-            if temp[i][game_column] == ' ':
-                temp[i][game_column] = coin
+            if temp[i][column] == 'O':
+                temp[i][column] = color
                 return temp
 
-    def heuristic_eval(self, state, coin):
-        """ Simple heuristic to evaluate play_board configurations
+    def value0(self, state, color):
+        """ Simple heuristic to evaluate board configurations
             Heuristic is (num of 4-in-a-rows)*99999 + (num of 3-in-a-rows)*100 +
             (num of 2-in-a-rows)*10 - (num of opponent 4-in-a-rows)*99999 - (num of opponent
             3-in-a-rows)*100 - (num of opponent 2-in-a-rows)*10
         """
-        if coin == 'R':
-            o_coin = 'B'
+        if color == 'R':
+            o_color = 'B'
         else:
-            o_coin = 'R'
+            o_color = 'R'
 
-        my_fours = self.consecutiveCoins(state, coin, 4)
-        my_threes = self.consecutiveCoins(state, coin, 3)
-        my_twos = self.consecutiveCoins(state, coin, 2)
-        opp_fours = self.consecutiveCoins(state, o_coin, 4)
-
+        my_fours = self.checkForStreak(state, color, 4, 0)
+        my_threes = self.checkForStreak(state, color, 3, 0)
+        my_twos = self.checkForStreak(state, color, 2, 0)
+        opp_fours = self.checkForStreak(state, o_color, 4, 0)
+        #opp_threes = self.checkForStreak(state, o_color, 3)
+        #opp_twos = self.checkForStreak(state, o_color, 2)
         if opp_fours > 0:
             return -100000
         else:
-            return my_fours*100000 + my_threes*100 + my_twos
+            return my_fours * 100000 + my_threes * 100 + my_twos
 
-    def consecutiveCoins(self, state, coin, consecutive):
+    def value(self, state, color):
+        """ 
+        """
+        if color == 'R':
+            o_color = 'B'
+        else:
+            o_color = 'R'
+
+        feature_dict = {}  # map from feature name to tuple (feature_value, weight)
+
+
+        feature_dict["my_fours"] = (self.checkForStreak(state, color, 4, 0), 100000.0)
+        feature_dict["my_threes"] = (self.checkForStreak(state, color, 3, 0), 5.0)
+        feature_dict["my_twos"] = (self.checkForStreak(state, color, 2, 0), 1.0)
+        feature_dict["opp_fours"] = (self.checkForStreak(state, o_color, 4, 0), -100000.0)
+        feature_dict["opp_threes"] = (self.checkForStreak(state, o_color, 3), -5.0)
+        feature_dict["opp_twos"] = (self.checkForStreak(state, o_color, 2), -1.0)
+
+        feature_dict["my_fours_one_space"] = (self.checkForStreak(state, color, 4, 1), 3.0)
+        feature_dict["my_threes_one_space"] = (self.checkForStreak(state, color, 3, 1), 1.0)
+        feature_dict["my_fours_two_space"] = (self.checkForStreak(state, color, 4, 2), 1.0)
+        feature_dict["opp_fours_one_space"] = (self.checkForStreak(state, o_color, 4, 1), -3.0)
+        feature_dict["opp_threes_one_space"] = (self.checkForStreak(state, o_color, 3, 1), -1.0)
+        feature_dict["opp_fours_two_space"] = (self.checkForStreak(state, o_color, 4, 2), -1.0)
+
+        feature_dict["my_undefeatable_streak"] = (self.checkForSurroundedStreak(state, color, 'O'), 5.0)
+        feature_dict["opp_undefeatable_streak"] = (self.checkForSurroundedStreak(state, o_color, 'O'), -5.0)
+
+        feature_dict["my_threes_useless"] = (self.checkForSurroundedStreak(state, color, o_color), 0.5)
+        feature_dict["opp_threes_useless"] = (self.checkForSurroundedStreak(state, o_color, color), -0.5)
+
+        if feature_dict["opp_fours"] > 0:
+            return -100000
+        else:
+            return sum([val[0] * val[1] for val in feature_dict.values()])  # weighted sum of feature values
+            # my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
+
+    # Check for a 3-in-a-row with empty spaces on both sides :0
+    def checkForSurroundedStreak(self, state, color, surrounding_color):
         count = 0
-        # for each piece in the play_board...
         for i in range(6):
             for j in range(7):
                 # ...that is of the color we're looking for...
-                if state[i][j].lower() == coin.lower():
+                if state[i][j] == 'O':
+                    if self.verticalStreak(i, j, state, 3, 0):
+                        next_row = i+1
+                        if next_row < 6 and state[next_row][j] == surrounding_color:
+                            count += 1
+                    if self.horizontalStreak(i, j, state, 3, 0):
+                        next_col = j+1
+                        if next_col < 7 and state[i][next_col] == surrounding_color:
+                            count += 1
+                    if self.horizontalStreak(i, j, state, 3, 0):
+                        next_col = j+1
+                        if next_col < 7 and state[i][next_col] == surrounding_color:
+                            count += 1
+                    for end_diag in self.diagonalCheck(i, j, state, 3, 0):
+                        if end_diag[0] < 6 and end_diag[1] < 7 and end_diag[0] >= 0 and end_diag[1] >= 0:
+                            if state[end_diag[0]][end_diag[1]] == surrounding_color:
+                                count += 1
+        return count
+
+    # Returns the number of streaks of length `streak_len`, with `num_empty_allowed` empty spaces allowed in the middle at the end of streaks.
+    def checkForStreak(self, state, color, streak_len, num_empty_allowed=0):
+        count = 0
+        # for each piece in the board...
+        for i in range(6):
+            for j in range(7):
+                # ...that is of the color we're looking for...
+                if state[i][j].lower() == color.lower() or (num_empty_allowed > 0 and state[i][j] == 'O'):
                     # check if a vertical streak starts at (i, j)
-                    count += self.yCheck(i, j, state, consecutive)
+                    count += self.verticalStreak(i, j, state, streak_len, num_empty_allowed)
 
                     # check if a horizontal four-in-a-row starts at (i, j)
-                    count += self.xCheck(i, j, state, consecutive)
+                    count += self.horizontalStreak(i, j, state, streak_len, num_empty_allowed)
 
                     # check if a diagonal (either way) four-in-a-row starts at (i, j)
-                    count += self.zCheck(i, j, state, consecutive)
+                    count += len(self.diagonalCheck(i, j, state, streak_len, num_empty_allowed))
         # return the sum of streaks of length 'streak'
         return count
 
-    def yCheck(self, row, column, state, consecutive):
+    def verticalStreak(self, row, col, state, streak, num_empty_allowed):
         consecutiveCount = 0
+        emptyCount = 0
         for i in range(row, 6):
-            if state[i][column].lower() == state[row][column].lower():
+            if state[i][col].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[i][col] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
 
-        if consecutiveCount >= consecutive:
+        if consecutiveCount >= streak:
             return 1
         else:
             return 0
 
-    def xCheck(self, row, column, state, consecutive):
+    def horizontalStreak(self, row, col, state, streak, num_empty_allowed):
         consecutiveCount = 0
-        for j in range(column, 7):
-            if state[row][j].lower() == state[row][column].lower():
+        emptyCount = 0
+        for j in range(col, 7):
+            if state[row][j].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[row][j] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
 
-        if consecutiveCount >= consecutive:
+        if consecutiveCount >= streak:
             return 1
         else:
             return 0
 
-    def zCheck(self, row, column, state, consecutive):
+    # Return list of (r, c) cells where the diagonal ends
+    def diagonalCheck(self, row, col, state, streak, num_empty_allowed):
 
-        total = 0
+        streaks = []
         # check for diagonals with positive slope
         consecutiveCount = 0
-        j = column
+        emptyCount = 0
+        j = col
+        i = 0
         for i in range(row, 6):
             if j > 6:
                 break
-            elif state[i][j].lower() == state[row][column].lower():
+            elif state[i][j].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[i][j] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
             j += 1 # increment column when row is incremented
 
-        if consecutiveCount >= consecutive:
-            total += 1
+        if consecutiveCount >= streak:
+            streaks.append((i, j))
 
         # check for diagonals with negative slope
         consecutiveCount = 0
-        j = column
+        emptyCount = 0
+        j = col
+        i = 0
         for i in range(row, -1, -1):
             if j > 6:
                 break
-            elif state[i][j].lower() == state[row][column].lower():
+            elif state[i][j].lower() == state[row][col].lower():
+                consecutiveCount += 1
+            elif emptyCount < num_empty_allowed and state[i][j] == 'O':
+                emptyCount += 1
                 consecutiveCount += 1
             else:
                 break
             j += 1 # increment column when row is incremented
 
-        if consecutiveCount >= consecutive:
-            total += 1
+        if consecutiveCount >= streak:
+            streaks.append((i, j))
 
-        return total
+        return streaks
