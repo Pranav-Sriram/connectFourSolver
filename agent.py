@@ -1,7 +1,6 @@
 import sys
 import copy
 import board
-import mcts
 from minimax import Minimax
 
 class ConnectFourAgent(object):

@@ -7,12 +7,14 @@ from agent import ConnectFourAgent
 
 class ConnectFourGame(object):
 
-    def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7, mcts_enabled=False, mctsPlayer=None, mcts_budget=1000):
+
+    def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7, mcts_enabled=False, mctsPlayer=None, mcts_budget=1000, silent=False):
         self.board = ConnectFourBoard(boardHeight, boardWidth)
         self.firstPlayer = firstPlayer 
         self.firstPlayer.setColor("R")
         self.secondPlayer = secondPlayer
         self.secondPlayer.setColor("B")
+        self.silent = silent 
         self.gameOver = False
         self.numMoves = 0
 
@@ -22,7 +24,7 @@ class ConnectFourGame(object):
         if not valid:
             print("Illegal Move: " + str(move))
             self.playMove(player, display)
-#self.board.update_mtcs_game(move, player.color)
+            #self.board.update_mtcs_game(move, player.color)
         if mctsPlayerToUpdate is not None:
             mctsPlayerToUpdate.setMove(move, player.color)
         if display: self.board.display()
@@ -43,11 +45,12 @@ class ConnectFourGame(object):
             winner = self.playMove(players[player_index], display, mctsPlayerToUpdate)
             if winner is not None:
                 if winner == 'Draw':
-                    print('Draw.')
+                    if not self.silent: print('Draw.')
                 else:
-                    print(winner + " won.")
+                    if not self.silent: print(winner + " won.")
                 return winner
             player_index = (player_index + 1) % 2
+
 
 def simulate(numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=None):
     for i in range(flags.numTrials):
