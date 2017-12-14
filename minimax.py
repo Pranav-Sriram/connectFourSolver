@@ -34,7 +34,7 @@ class Minimax(object):
                 # make the move in column 'col' for curr_player
                 temp = self.makeMove(state, col, curr_player)
                 if alpha_beta:
-                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf)
+                    legal_moves[col] = -self.search_alpha_beta(depth-1, temp, opp_player, neg_inf, inf, False)
                 else:
                     legal_moves[col] = -self.search(depth-1, temp, opp_player)
         best_alpha = neg_inf
@@ -79,7 +79,7 @@ class Minimax(object):
         return alpha
 
     # Search with alpha-beta pruning
-    def search_alpha_beta(self, depth, state, curr_player, a, b):
+    def search_alpha_beta(self, depth, state, curr_player, a, b, maximizing_player):
         """ Searches the tree at depth 'depth'
             By default, the state is the board, and curr_player is whomever
             called this search
@@ -103,16 +103,31 @@ class Minimax(object):
         # determine opponent's color
         opp_player = "B" if curr_player == "R" else "B"
 
-        alpha = float('-inf')
-        for child in legal_moves:
-            if child == None:
-                print("child == None (search)")
-            child = -self.search_alpha_beta(depth-1, child, opp_player, a, b)
-            alpha = max(alpha, child)
-            a = max(a, alpha)
-            if b <= a:
-                return child
-        return alpha
+        if maximizing_player:
+            v = neg_inf
+            for child in legal_moves:
+                if child == None:
+                    print("child == None (search)")
+
+                child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, False)
+                v = max(v, child)
+                a = max(a, v)
+                if b <= a:
+                    break
+            return v
+        else:
+            v = inf
+            for child in legal_moves:
+                if child == None:
+                    print("child == None (search)")
+
+                child = -self.search_alpha_beta(depth-1, child, opp_player, a, b, True)
+                v = min(v, child)
+                b = min(b, v)
+                if b <= a:
+                    break
+            return v
+
 
     def isLegalMove(self, column, state):
         """ Boolean function to check if a move (column) is a legal move
