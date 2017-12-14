@@ -3,7 +3,7 @@ A collection of classes and functions for playing certain types of
 games. Specifically, an implementation of the MCTS algorithm.
 """
 import random
-import queue as Queue  
+from multiprocessing import Queue
 from math import sqrt, log
 from random import sample
 
