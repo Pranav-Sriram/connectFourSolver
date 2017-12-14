@@ -1,3 +1,4 @@
+from subprocess import Popen, PIPE, STDOUT
 import sys, random
 import board  
 import mcts
@@ -63,3 +64,20 @@ class MctsPlayer(object):
         self.mcts_game = mcts.ConnectFour(height=6, width=7, target=4)
         self.mcts_state = ((),) * 7
         
+class VelengPlayer(object):
+    def __init__(self, name="Veleng", color=None):
+        self.name = name
+        self.color = color 
+        self.sequence = 'c'
+
+    def setColor(self, color):
+        self.color = color 
+
+    def getMove(self, board):
+        p = Popen(['./veleng'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        input_str = self.sequence + ''.join([str(move+1) for move in board.moves]) + '0\nq'
+        stdout_data = p.communicate(input=input_str)[0]
+        stripped_data = stdout_data.strip()
+        if stripped_data.isdigit():
+            return int(stripped_data) - 1  # their board is numbered starting at 1 >:(
+

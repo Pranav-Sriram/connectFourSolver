@@ -2,7 +2,7 @@ from __future__ import print_function
 import sys
 from optparse import OptionParser
 from board import ConnectFourBoard 
-from player import HumanPlayer, RandomPlayer, MctsPlayer
+from player import HumanPlayer, RandomPlayer, MctsPlayer, VelengPlayer
 from agent import ConnectFourAgent
 
 class ConnectFourGame(object):
@@ -84,8 +84,14 @@ def getParserOptions():
     parser.add_option("-t", type="int", dest="numTrials")  # simulate against random player for numTrials      
     parser.add_option("--depth", type="int", dest="depth")           
 
-    parser.add_option("-m", action="store_true", dest="mctsEnabled")  # whether to play against mcts
+    # MCTS flags
+    parser.add_option("-m", action="store_true", dest="mctsEnabled")
     parser.add_option("-b", type="int", dest="mctsBudget")
+
+    # Veleng flags
+    parser.add_option("-v", action="store_true", dest="velengEnabled")
+
+    parser.add_option("-r", action="store_true", dest="reverseOrder")
     return parser.parse_args()
 
 if __name__=="__main__":
@@ -138,6 +144,11 @@ if __name__=="__main__":
         if flags.mctsEnabled:
             secondPlayer = MctsPlayer(color="B", budget=mcts_budget)
             mctsPlayer = secondPlayer
+        elif flags.velengEnabled:
+            secondPlayer = VelengPlayer(color="B")
         else:
             secondPlayer = ConnectFourAgent(name="Computer2", color="B", algorithm="minimax", depth=3)
-        simulate(flags.numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=mctsPlayer)
+        if flags.reverseOrder:
+            simulate(flags.numTrials, secondPlayer, firstPlayer, mctsPlayerToUpdate=mctsPlayer)
+        else:
+            simulate(flags.numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=mctsPlayer)
