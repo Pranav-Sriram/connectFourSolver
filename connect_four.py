@@ -4,6 +4,7 @@ from optparse import OptionParser
 from board import ConnectFourBoard 
 from player import HumanPlayer, RandomPlayer, MctsPlayer, VelengPlayer
 from agent import ConnectFourAgent
+from td_alpha_beta import TDAlphaBeta 
 
 class ConnectFourGame(object):
 
