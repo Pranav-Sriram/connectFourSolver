@@ -56,7 +56,11 @@ class ConnectFourGame(object):
 def simulate(numTrials, firstPlayer, secondPlayer, mctsPlayerToUpdate=None):
     for i in range(flags.numTrials):
         game = ConnectFourGame(firstPlayer=firstPlayer, secondPlayer=secondPlayer)
-        winner = game.play(display=False, mctsPlayerToUpdate=mctsPlayerToUpdate)
+        win_color = game.play(display=False, mctsPlayerToUpdate=mctsPlayerToUpdate)
+        if firstPlayer.color == win_color:
+            winner = firstPlayer.name
+        else:
+            winner = secondPlayer.name
         if winner not in results.keys():
             results[winner] = 0
         results[winner] += 1
@@ -93,6 +97,7 @@ def getParserOptions():
     parser.add_option("-v", action="store_true", dest="velengEnabled")
 
     parser.add_option("-r", action="store_true", dest="reverseOrder")
+    parser.add_option("-e", action="store_true", dest="compareEvals")
     return parser.parse_args()
 
 if __name__=="__main__":
@@ -147,6 +152,8 @@ if __name__=="__main__":
             mctsPlayer = secondPlayer
         elif flags.velengEnabled:
             secondPlayer = VelengPlayer(color="B")
+        elif flags.compareEvals:
+            secondPlayer = ConnectFourAgent(name="Computer2", color="B", algorithm="minimax", depth=4, evalfn="complex")
         else:
             secondPlayer = ConnectFourAgent(name="Computer2", color="B", algorithm="minimax", depth=3)
         if flags.reverseOrder:

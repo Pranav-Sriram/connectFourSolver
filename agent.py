@@ -13,7 +13,8 @@ class ConnectFourAgent(object):
     alpha-beta pruning in order to choose its move. 
     """
 
-    def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax", mcts_budget=1000, tdEvaluator=None):
+    def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax", mcts_budget=1000, tdEvaluator=None, evalfn="simple"):
+
         self.name = name
         self.color = color
         self.opponentColor = "R" if color == "B" else "B"
@@ -24,8 +25,8 @@ class ConnectFourAgent(object):
         if algorithm == "TDAlphaBeta":
             self.tdAlphaBetaSolver = TDAlphaBeta(tdEvaluator)
         else:
-            self.minimaxSolver = Minimax()
-
+            self.minimaxSolver = Minimax(evalfn)
+        
     def setColor(self, color):
         self.color = color 
 
