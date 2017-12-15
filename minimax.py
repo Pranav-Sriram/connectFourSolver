@@ -13,8 +13,9 @@ class Minimax(object):
     """
     color = None
 
-    def __init__(self):
+    def __init__(self, evalfn):
         # copy the board to self.board
+        self.evalfn = evalfn
         pass
 
     def bestMove(self, depth, board, curr_player, alpha_beta=False):
@@ -66,7 +67,10 @@ class Minimax(object):
         # if this node (state) is a terminal node or depth == 0...
         if depth == 0 or len(legal_moves) == 0 or self.gameIsOver(state):
             # return the heuristic value of node
-            return self.value0(state, curr_player)
+            if self.evalfn == "simple":
+                return self.value0(state, curr_player)
+            else:
+                return self.value(state, curr_player)
 
         # determine opponent's color
         opp_player = "B" if curr_player == "R" else "R"
@@ -215,11 +219,25 @@ class Minimax(object):
         feature_dict["my_threes_useless"] = (self.checkForSurroundedStreak(state, color, o_color), 0.5)
         feature_dict["opp_threes_useless"] = (self.checkForSurroundedStreak(state, o_color, color), -0.5)
 
+        feature_dict["my_centrality_score"] = (self.centralityScore(state, color), 0.8)
+        feature_dict["opp_centrality_score"] = (self.centralityScore(state, o_color), 0.8)
+
         if feature_dict["opp_fours"] > 0:
             return -100000
         else:
             return sum([val[0] * val[1] for val in feature_dict.values()])  # weighted sum of feature values
             # my_fours * 100000 + (my_threes + my_fours_one_space) * 100 + (my_twos + my_threes_one_space)
+
+    def centralityScore(self, state, color):
+        col_scores = [1,3,5,9,9,5,3,1]
+        score = 0
+        count = 0
+        for i in range(6):
+            for j in range(7):
+                if state[i][j] == color:
+                    count += 1
+                    score += col_scores[j]
+        return (score+0.0) / count
 
     # Check for a 3-in-a-row with empty spaces on both sides :0
     def checkForSurroundedStreak(self, state, color, surrounding_color):
