@@ -3,7 +3,6 @@ import numpy as np
 import random
 import time
 import copy
-import agent 
 from connect_four import ConnectFourGame
 from player import HumanPlayer
 from board import ConnectFourBoard
@@ -37,6 +36,7 @@ class TemporalDifferenceLearner(object):
 			self.saver = tf.train.Saver()
 			if self.restorePath:
 				self.saver.restore(self.sess, self.restorePath)
+				print(self.W4.eval())  # test
 			else:
 				self.sess.run(tf.global_variables_initializer())
 
@@ -206,21 +206,7 @@ def playAgainstHuman(humanColor, tdAgent):
 	game = ConnectFourGame(firstPlayer, secondPlayer)
 	game.play(display=True)
 
-def playAgainstMinimax(opponentColor, tdAgent=None, nGames=50, depth=1):
-	tdAgent.color = "R" if opponentColor == "B" else "B"
 
-	if opponentColor == "R":
-		firstPlayer = agent.ConnectFourAgent(name="minimaxAgent", color="R", depth=depth)
-		secondPlayer = tdAgent  
-	else:
-		firstPlayer = tdAgent
-		secondPlayer = agent.ConnectFourAgent(name="minimaxAgent", color="B", depth=depth)
-
-	results = {"R": 0, "B": 0, "Draw": 0}
-
-	for it in range(nGames):
-		results[(ConnectFourGame(firstPlayer, secondPlayer, silent=True).play(display=False))] += 1
-	return results 
 
 
 if __name__=="__main__":

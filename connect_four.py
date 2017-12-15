@@ -7,8 +7,6 @@ from agent import ConnectFourAgent
 from td_alpha_beta import TDAlphaBeta 
 
 class ConnectFourGame(object):
-
-
     def __init__(self, firstPlayer, secondPlayer, boardHeight=6, boardWidth=7, mcts_enabled=False, mctsPlayer=None, mcts_budget=1000, silent=False):
         self.board = ConnectFourBoard(boardHeight, boardWidth)
         self.firstPlayer = firstPlayer 
