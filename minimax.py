@@ -132,7 +132,6 @@ class Minimax(object):
                     break
             return v
 
-
     def isLegalMove(self, column, state):
         """ Boolean function to check if a move (column) is a legal move
         """
