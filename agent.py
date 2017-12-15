@@ -2,6 +2,7 @@ import sys
 import copy
 import board
 from minimax import Minimax
+from td_alpha_beta import TDAlphaBeta
 
 class ConnectFourAgent(object):
     """
@@ -12,15 +13,20 @@ class ConnectFourAgent(object):
     alpha-beta pruning in order to choose its move. 
     """
 
-    def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax", mcts_budget=1000):
+    def __init__(self, name="Computer", color=None, depth=3, algorithm="minimax", mcts_budget=1000, tdEvaluator=None, evalfn="simple"):
+
         self.name = name
         self.color = color
         self.opponentColor = "R" if color == "B" else "B"
         self.algorithm = algorithm
         self.isHuman = False
         self.minimax_depth = depth
-        self.minimaxSolver = Minimax()
 
+        if algorithm == "TDAlphaBeta":
+            self.tdAlphaBetaSolver = TDAlphaBeta(tdEvaluator)
+        else:
+            self.minimaxSolver = Minimax(evalfn)
+        
     def setColor(self, color):
         self.color = color 
 
@@ -35,6 +41,8 @@ class ConnectFourAgent(object):
             return self.expectimaxMove(board)
         elif self.algorithm == "mcts":
             return self.mctsMove(board)
+        elif self.algorithm == "TDAlphaBeta":
+            return self.tdAlphaBetaMove(board)
         else:
             raise NameError("Unrecognized algorithm name. ")
         
@@ -60,6 +68,9 @@ class ConnectFourAgent(object):
 
     def expectimaxMove(self, board):
         return self.minimaxSolver.bestMove(self.minimax_depth, board.getState2dArray(), self.color, True)
+
+    def tdAlphaBetaMove(self, board):
+        return self.tdAlphaBetaSolver.bestMove(self.minimax_depth, copy.deepcopy(board), self.color)
 
     def getAction(self, board):
         pass 
